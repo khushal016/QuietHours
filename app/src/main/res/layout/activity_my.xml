@@ -1,0 +1,118 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:divider="@drawable/row_divider"
+    android:showDividers="middle"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+
+<LinearLayout
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:id="@+id/linearLayout">
+
+
+<TextView
+    android:layout_weight="1"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:text="@string/do_not_disturb"
+    android:textSize="@dimen/primary_text_size"
+    android:textColor="@color/primary_text_default_material_light" />
+<android.support.v7.widget.SwitchCompat
+
+    android:id="@+id/silent_switch1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:theme="@style/AppTheme"
+    android:clickable="true" />
+
+
+</LinearLayout>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:id="@+id/linearLayout1">
+
+
+        <TextView
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/scheduled"
+            android:textSize="@dimen/sec_text_size"
+            android:gravity="bottom"
+            android:textColor="@color/secondary_text_default_material_light" />
+
+
+
+    </LinearLayout>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:id="@+id/linearLayout2">
+
+
+        <TextView
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/repeat_button"
+            android:textSize="@dimen/primary_text_size"
+            android:textColor="@color/primary_dark_material_dark" />
+        <android.support.v7.widget.SwitchCompat
+
+            android:id="@+id/repeat_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme"
+            android:clickable="true" />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:id="@+id/linearLayout3">
+
+
+        <TextView
+            android:layout_weight="1"
+            android:id="@+id/setTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/set_time"
+            android:textSize="@dimen/primary_text_size"
+            android:textColor="@color/primary_dark_material_dark"
+            android:clickable="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=">"
+            android:textSize="@dimen/symbol_size" />
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
