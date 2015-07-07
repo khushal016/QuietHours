@@ -7,5 +7,15 @@
     <string name="scheduled">SCHEDULED</string>
     <string name="repeat_button">Repeat do not disturb time</string>
     <string name="do_not_disturb">Do not disturb</string>
+    <string name="repeat_days_text">Repeat Days</string>
+    <string name="all_days">All Days</string>
+    <string name="days_of_week_0">Monday</string>
+    <string name="days_of_week_1">Tuesday</string>
+    <string name="days_of_week_2">Wednesday</string>
+    <string name="days_of_week_3">Thursday</string>
+    <string name="days_of_week_4">Friday</string>
+    <string name="days_of_week_5">Saturday</string>
+    <string name="days_of_week_6">Sunday</string>
+
 
 </resources>
