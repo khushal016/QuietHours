@@ -20,7 +20,7 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
     SwitchCompat s1, s2;
     LinearLayout timerow;
     Intent intent;
-    TextView t1;
+    TextView t1,t2;
     SharedPreferences preferences;
 
     @Override
@@ -33,10 +33,12 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
         s2 = (SwitchCompat) findViewById(R.id.repeat_switch);
         timerow = (LinearLayout) findViewById(R.id.linearLayout3);
         t1 = (TextView) findViewById(R.id.setTime);
+        t2 = (TextView) findViewById(R.id.exceptions_settings);
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         s1.setOnClickListener(this);
         s2.setOnClickListener(this);
         t1.setOnClickListener(this);
+        t2.setOnClickListener(this);
         s2.setChecked(rbpref);
         isRepeatOn();
 
@@ -118,6 +120,13 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
         if (v.getId() == t1.getId()) {
             intent = new Intent(this, SetTimeActivity.class);
             startActivity(intent);
+        }
+
+        if(v.getId()==t2.getId())
+        {
+            intent=new Intent(this,ExceptionActivity.class);
+            startActivity(intent);
+
         }
     }
 }

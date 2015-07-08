@@ -25,7 +25,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.hidtechs.quiethours.MyActivity" />
         </activity>
+        <activity
+            android:name=".ExceptionActivity"
+            android:label="@string/exception_settings"
+            android:parentActivityName=".MyActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.hidtechs.quiethours.MyActivity" />
+        </activity>
     </application>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
 </manifest>
