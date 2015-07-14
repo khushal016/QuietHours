@@ -1,11 +1,24 @@
 package com.hidtechs.quiethours;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,33 +28,106 @@ import android.widget.Toast;
 
 public class MyActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private AudioManager audioManager;
-    Boolean phoneIsSilent = false;
     SwitchCompat s1, s2;
     LinearLayout timerow;
     Intent intent;
     TextView t1,t2;
     SharedPreferences preferences;
+    BroadcastReceiver mReceiver;
+    IntentFilter filter;
+    TelephonyManager telephonyManager;
+    AudioManager audioManager;
+    String number;
+    KeyguardManager keyguardManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getPreferences(MODE_PRIVATE);
+        audioManager= (AudioManager) getSystemService(AUDIO_SERVICE);
+        telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        keyguardManager= (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+        PhoneStateListener callStateListener = new PhoneStateListener() {
+            @SuppressLint("NewApi")
+            public void onCallStateChanged(int state, String incomingNumber)
+            {
+                number=incomingNumber;
+
+                // If phone ringing
+                if(state==TelephonyManager.CALL_STATE_RINGING)
+                {
+                    if (preferences.getBoolean("allcontacts",false) && preferences.getBoolean("silentButton",false) && preferences.getBoolean("callsButton",false) && contactExists(this,number))
+                    {
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                    }
+
+                }
+                // If incoming call received
+                if(state==TelephonyManager.CALL_STATE_OFFHOOK)
+                {
+
+                }
+
+
+                if(state==TelephonyManager.CALL_STATE_IDLE)
+                {
+                    if (preferences.getBoolean("silentButton",false) && keyguardManager.isKeyguardLocked())
+                    {
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                    }
+
+                }
+            }
+        };
+        telephonyManager.listen(callStateListener,PhoneStateListener.LISTEN_CALL_STATE);
+        filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        mReceiver = new ScreenReceiver();
+        registerReceiver(mReceiver, filter);
+        preferences = getSharedPreferences("MyFiles",MODE_PRIVATE);
         boolean rbpref = preferences.getBoolean("repeatButton", false);
+        boolean sbpref = preferences.getBoolean("silentButton",false);
         setContentView(R.layout.activity_my);
         s1 = (SwitchCompat) findViewById(R.id.silent_switch1);
         s2 = (SwitchCompat) findViewById(R.id.repeat_switch);
         timerow = (LinearLayout) findViewById(R.id.linearLayout3);
         t1 = (TextView) findViewById(R.id.setTime);
         t2 = (TextView) findViewById(R.id.exceptions_settings);
-        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         s1.setOnClickListener(this);
         s2.setOnClickListener(this);
         t1.setOnClickListener(this);
         t2.setOnClickListener(this);
+        s1.setChecked(sbpref);
         s2.setChecked(rbpref);
         isRepeatOn();
 
+    }
+    public boolean contactExists(PhoneStateListener context, String number) {
+        try {
+            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+            Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, number, null, null );
+            try {
+                if (cursor.moveToFirst()) {
+                    return true;
+                }
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
+        } catch (IllegalArgumentException iae) {
+            return false;
+        }
+        return false;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (!preferences.getBoolean("silentButton",false))
+        {
+            unregisterReceiver(mReceiver);
+        }
     }
 
     private void isRepeatOn() {
@@ -52,23 +138,8 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isPhoneSilent();
-        s1.setChecked(phoneIsSilent);
-
-    }
 
 
-    public void isPhoneSilent() {
-        int i = audioManager.getRingerMode();
-        if (i == AudioManager.RINGER_MODE_SILENT || i == AudioManager.RINGER_MODE_VIBRATE) {
-            phoneIsSilent = true;
-        } else {
-            phoneIsSilent = false;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -95,16 +166,10 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v.getId() == s1.getId()) {
-            boolean on = s1.isChecked();
-            if (on) {
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-                Toast.makeText(this, "Silent mode on", Toast.LENGTH_SHORT).show();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("silentButton", s1.isChecked());
+            editor.commit();
 
-            } else {
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                Toast.makeText(this, "Silent mode off", Toast.LENGTH_SHORT).show();
-            }
         }
         if (v.getId() == s2.getId()) {
             SharedPreferences.Editor editor = preferences.edit();

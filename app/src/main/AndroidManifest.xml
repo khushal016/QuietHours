@@ -20,6 +20,7 @@
         <activity
             android:name=".SetTimeActivity"
             android:label="@string/activity_set_time"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -28,6 +29,7 @@
         <activity
             android:name=".ExceptionActivity"
             android:label="@string/exception_settings"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

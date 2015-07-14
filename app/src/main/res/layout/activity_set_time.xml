@@ -4,9 +4,7 @@
     android:layout_height="match_parent"
     android:divider="@drawable/row_divider"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="5dp"
+    android:padding="10dp"
     android:showDividers="middle">
 
     <LinearLayout
@@ -26,7 +24,7 @@
             android:text="From"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_dark_material_dark"
-            android:textSize="25sp" />
+            android:textSize="@dimen/primary_text_size" />
 
 
         <TextView
@@ -53,7 +51,7 @@
             android:text="To"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_dark_material_dark"
-            android:textSize="25sp" />
+            android:textSize="@dimen/primary_text_size" />
 
         <TextView
             android:id="@+id/to_time_show"
@@ -76,6 +74,7 @@
             android:layout_height="wrap_content"
             android:text="@string/repeat_days_text"
             android:textSize="@dimen/primary_text_size"
+            android:textColor="@color/primary_dark_material_dark"
             android:paddingBottom="5dp"/>
 
         <CheckBox

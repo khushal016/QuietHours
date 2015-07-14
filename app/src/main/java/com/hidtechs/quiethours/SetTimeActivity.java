@@ -2,6 +2,7 @@ package com.hidtechs.quiethours;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,10 +17,9 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
     TextView fromTime, toTime, fromTimeShow, toTimeShow;
     static final int FROMTEXT_DIALOG_ID = 0;
     static final int TOTEXT_DIALOG_ID = 1;
-    int hour_x;
-    int minute_x;
+    int fromHour_x,fromMinute_x,toHour_x,toMinute_x;
     CheckBox check_all, check_mon, check_tue, check_wed, check_thu, check_fri, check_sat, check_sun;
-
+    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,8 +28,13 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
         toTimeShow = (TextView) findViewById(R.id.to_time_show);
         check_all = (CheckBox) findViewById(R.id.always);
         check_all.setOnCheckedChangeListener(this);
-        fromTimeShow.setText("22 : 00");
-        toTimeShow.setText("06 : 00");
+        preferences=getSharedPreferences("MyFiles",MODE_PRIVATE);
+        fromHour_x=preferences.getInt("fromHour", 22);
+        fromMinute_x=preferences.getInt("fromMinute", 00);
+        fromTimeShow.setText(fromHour_x+" : "+fromMinute_x);
+        toHour_x=preferences.getInt("toHour",06);
+        toMinute_x=preferences.getInt("toMinute",00);
+        toTimeShow.setText(toHour_x+" : "+toMinute_x);
         showTimePickerDialog();
     }
 
@@ -56,27 +61,35 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
 
     protected Dialog onCreateDialog(int id) {
         if (id == FROMTEXT_DIALOG_ID)
-            return new TimePickerDialog(this, ftTimePickerListener, hour_x, minute_x, false);
+            return new TimePickerDialog(this, ftTimePickerListener, fromHour_x, fromMinute_x, false);
         else if (id == TOTEXT_DIALOG_ID)
-            return new TimePickerDialog(this, ttTimePickerListener, hour_x, minute_x, false);
+            return new TimePickerDialog(this, ttTimePickerListener, toHour_x, toMinute_x, false);
         else return null;
     }
 
     protected TimePickerDialog.OnTimeSetListener ftTimePickerListener = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            hour_x = hourOfDay;
-            minute_x = minute;
-            fromTimeShow.setText(hourOfDay + " : " + minute);
+            fromHour_x = hourOfDay;
+            fromMinute_x = minute;
+            fromTimeShow.setText(fromHour_x + " : " + fromMinute_x);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putInt("fromHour",fromHour_x);
+            editor.putInt("fromMinute",fromMinute_x);
+            editor.commit();
         }
     };
 
     protected TimePickerDialog.OnTimeSetListener ttTimePickerListener = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            hour_x = hourOfDay;
-            minute_x = minute;
-            toTimeShow.setText(hourOfDay + " : " + minute);
+            toHour_x = hourOfDay;
+            toMinute_x = minute;
+            toTimeShow.setText(toHour_x + " : " + toMinute_x);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putInt("toHour",toHour_x);
+            editor.putInt("toMinute",toMinute_x);
+            editor.commit();
         }
     };
 
