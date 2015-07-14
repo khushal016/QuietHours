@@ -20,10 +20,10 @@
             android:id="@+id/from_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:layout_weight="1"
             android:paddingTop="10dp"
             android:text="From"
-            android:layout_marginLeft="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_dark_material_dark"
             android:textSize="25sp" />
@@ -31,9 +31,9 @@
 
         <TextView
             android:id="@+id/from_time_show"
-            android:layout_marginRight="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -46,33 +46,86 @@
         <TextView
             android:id="@+id/to_time"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
             android:paddingTop="10dp"
             android:text="To"
-            android:layout_marginLeft="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/primary_dark_material_dark"
             android:textSize="25sp" />
 
         <TextView
             android:id="@+id/to_time_show"
-            android:layout_marginRight="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical"
         android:paddingBottom="10dp"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:showDividers="middle">
 
-        <TimePicker
-            android:id="@+id/timePicker"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:text="@string/repeat_days_text"
+            android:textSize="@dimen/primary_text_size"
+            android:paddingBottom="5dp"/>
+
+        <CheckBox
+            android:id="@+id/always"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/all_days" />
+
+        <CheckBox
+            android:id="@+id/day_mon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_0" />
+
+        <CheckBox
+            android:id="@+id/day_tue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_1" />
+
+        <CheckBox
+            android:id="@+id/day_wed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_2" />
+
+        <CheckBox
+            android:id="@+id/day_thu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_3" />
+
+        <CheckBox
+            android:id="@+id/day_fri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_4" />
+
+        <CheckBox
+            android:id="@+id/day_sat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_5" />
+
+        <CheckBox
+            android:id="@+id/day_sun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week_6" />
+
 
     </LinearLayout>
 
