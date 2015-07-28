@@ -27,6 +27,13 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
         fromTimeShow = (TextView) findViewById(R.id.from_time_show);
         toTimeShow = (TextView) findViewById(R.id.to_time_show);
         check_all = (CheckBox) findViewById(R.id.always);
+        check_mon = (CheckBox) findViewById(R.id.day_mon);
+        check_tue = (CheckBox) findViewById(R.id.day_tue);
+        check_wed = (CheckBox) findViewById(R.id.day_wed);
+        check_thu = (CheckBox) findViewById(R.id.day_thu);
+        check_fri = (CheckBox) findViewById(R.id.day_fri);
+        check_sat = (CheckBox) findViewById(R.id.day_sat);
+        check_sun = (CheckBox) findViewById(R.id.day_sun);
         check_all.setOnCheckedChangeListener(this);
         preferences=getSharedPreferences("MyFiles",MODE_PRIVATE);
         fromHour_x=preferences.getInt("fromHour", 22);
@@ -37,6 +44,8 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
         toTimeShow.setText(toHour_x+" : "+toMinute_x);
         showTimePickerDialog();
     }
+
+
 
     public void showTimePickerDialog() {
         fromTime = (TextView) findViewById(R.id.from_time);
@@ -95,13 +104,7 @@ public class SetTimeActivity extends AppCompatActivity implements CheckBox.OnChe
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        check_mon = (CheckBox) findViewById(R.id.day_mon);
-        check_tue = (CheckBox) findViewById(R.id.day_tue);
-        check_wed = (CheckBox) findViewById(R.id.day_wed);
-        check_thu = (CheckBox) findViewById(R.id.day_thu);
-        check_fri = (CheckBox) findViewById(R.id.day_fri);
-        check_sat = (CheckBox) findViewById(R.id.day_sat);
-        check_sun = (CheckBox) findViewById(R.id.day_sun);
+
         if (buttonView.isChecked() == true) {
             check_mon.setChecked(true);
             check_tue.setChecked(true);

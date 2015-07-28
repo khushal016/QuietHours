@@ -15,9 +15,24 @@ import java.util.List;
 /**
  * Created by napster on 6/7/15.
  */
+
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
+    public interface DeleteButtonListner
+    {
+        void deleteClicked(String name);
+    }
+
     private LayoutInflater inflater;
-    List<Information> data=new ArrayList<>();
+    List<Information> data;
+    private DeleteButtonListner deleteButtonListner;
+
+    public void setDeleteButtonListner(DeleteButtonListner deleteButtonListner){
+        this.deleteButtonListner = deleteButtonListner;
+    }
+
+    public void setData(List<Information> data) {
+        this.data = data;
+    }
 
     public MyAdapter(Context context,List<Information> data)
     {
@@ -37,6 +52,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
 
     public void delete(int position)
     {
+
+        deleteButtonListner.deleteClicked(data.get(position).name);
         data.remove(position);
         notifyItemRemoved(position);
     }
@@ -45,7 +62,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
         Information current = data.get(position);
         holder.itemView.setTag(data.get(position));
         holder.name.setText(current.name);
-        holder.minus.setImageResource(current.iconId);
+        holder.minus.setImageResource(R.drawable.remove);
         holder.number.setText(current.number);
 
     }
@@ -73,6 +90,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>  {
         @Override
         public void onClick(View v) {
             delete(getAdapterPosition());
+
         }
     }
 }

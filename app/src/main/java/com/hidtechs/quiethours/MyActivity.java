@@ -1,174 +1,125 @@
 package com.hidtechs.quiethours;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.KeyguardManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.os.Build;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MyActivity extends AppCompatActivity implements View.OnClickListener {
 
     SwitchCompat s1, s2;
-    LinearLayout timerow;
+    LinearLayout timeRow, exceptionRow, dndRow, repeatRow;
+    TextView exceptions_number;
     Intent intent;
-    TextView t1,t2;
     SharedPreferences preferences;
-    BroadcastReceiver mReceiver;
-    IntentFilter filter;
-    TelephonyManager telephonyManager;
-    AudioManager audioManager;
-    String number;
-    KeyguardManager keyguardManager;
-
+    DBHelper dbHelper = new DBHelper(this);
+    long exceptionsCount;
+    SQLiteDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        audioManager= (AudioManager) getSystemService(AUDIO_SERVICE);
-        telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        keyguardManager= (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-        PhoneStateListener callStateListener = new PhoneStateListener() {
-            @SuppressLint("NewApi")
-            public void onCallStateChanged(int state, String incomingNumber)
-            {
-                number=incomingNumber;
-
-                // If phone ringing
-                if(state==TelephonyManager.CALL_STATE_RINGING)
-                {
-                    if (preferences.getBoolean("allcontacts",false) && preferences.getBoolean("silentButton",false) && preferences.getBoolean("callsButton",false) && contactExists(this,number))
-                    {
-                        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                    }
-
-                }
-                // If incoming call received
-                if(state==TelephonyManager.CALL_STATE_OFFHOOK)
-                {
-
-                }
-
-
-                if(state==TelephonyManager.CALL_STATE_IDLE)
-                {
-                    if (preferences.getBoolean("silentButton",false) && keyguardManager.isKeyguardLocked())
-                    {
-                        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    }
-
-                }
-            }
-        };
-        telephonyManager.listen(callStateListener,PhoneStateListener.LISTEN_CALL_STATE);
-        filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(Intent.ACTION_USER_PRESENT);
-        mReceiver = new ScreenReceiver();
-        registerReceiver(mReceiver, filter);
         preferences = getSharedPreferences("MyFiles",MODE_PRIVATE);
         boolean rbpref = preferences.getBoolean("repeatButton", false);
         boolean sbpref = preferences.getBoolean("silentButton",false);
         setContentView(R.layout.activity_my);
         s1 = (SwitchCompat) findViewById(R.id.silent_switch1);
         s2 = (SwitchCompat) findViewById(R.id.repeat_switch);
-        timerow = (LinearLayout) findViewById(R.id.linearLayout3);
-        t1 = (TextView) findViewById(R.id.setTime);
-        t2 = (TextView) findViewById(R.id.exceptions_settings);
+        exceptions_number= (TextView) findViewById(R.id.exceptions_number);
+        timeRow = (LinearLayout) findViewById(R.id.setTime_layout);
+        exceptionRow = (LinearLayout) findViewById(R.id.exceptions_layout);
+        dndRow = (LinearLayout) findViewById(R.id.dnd_layout);
+        repeatRow = (LinearLayout) findViewById(R.id.repeat_layout);
+        repeatRow.setOnClickListener(this);
+        dndRow.setOnClickListener(this);
+        exceptionRow.setOnClickListener(this);
         s1.setOnClickListener(this);
         s2.setOnClickListener(this);
-        t1.setOnClickListener(this);
-        t2.setOnClickListener(this);
+        timeRow.setOnClickListener(this);
         s1.setChecked(sbpref);
         s2.setChecked(rbpref);
+        db = dbHelper.getReadableDatabase();
         isRepeatOn();
-
-    }
-    public boolean contactExists(PhoneStateListener context, String number) {
-        try {
-            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
-            Cursor cursor = getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, number, null, null );
-            try {
-                if (cursor.moveToFirst()) {
-                    return true;
-                }
-            } finally {
-                if (cursor != null)
-                    cursor.close();
-            }
-        } catch (IllegalArgumentException iae) {
-            return false;
+        if (preferences.getBoolean("silentButton",false))
+        {
+            startService(new Intent(this,ScreenService.class));
         }
-        return false;
-    }
+        else if (!preferences.getBoolean("silentButton", false))
+        {
+            stopService(new Intent(this,ScreenService.class));
+        }
 
+    }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (!preferences.getBoolean("silentButton",false))
-        {
-            unregisterReceiver(mReceiver);
+    protected void onResume() {
+        super.onResume();
+        if (preferences.getBoolean("exceptions",false)) {
+            exceptionsCount= DatabaseUtils.queryNumEntries(db,DBHelper.CONTACTS_TABLE_NAME);
+            exceptions_number.setText(exceptionsCount + " exceptions");
+        }
+        else if(preferences.getBoolean("allcontacts",false)) {
+            exceptions_number.setText("all contacts");
         }
     }
 
     private void isRepeatOn() {
         if (!s2.isChecked()) {
-            timerow.setVisibility(timerow.GONE);
+            timeRow.setVisibility(timeRow.GONE);
         } else {
-            timerow.setVisibility(timerow.VISIBLE);
+            timeRow.setVisibility(timeRow.VISIBLE);
         }
     }
 
-
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_my, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onClick(View v) {
+        if (v.equals(dndRow))
+        {
+            s1.toggle();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("silentButton", s1.isChecked());
+            editor.commit();
+
+            if (preferences.getBoolean("silentButton",false))
+            {
+                startService(new Intent(this,ScreenService.class));
+            }
+            else if (!preferences.getBoolean("silentButton", false))
+            {
+                stopService(new Intent(this,ScreenService.class));
+            }
+        }
+        if (v.equals(repeatRow))
+        {
+            s2.toggle();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("repeatButton", s2.isChecked());
+            editor.commit();
+            if (s2.isChecked()) {
+                timeRow.setVisibility(timeRow.VISIBLE);
+            } else {
+                timeRow.setVisibility(timeRow.GONE);
+            }
+
+        }
         if (v.getId() == s1.getId()) {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("silentButton", s1.isChecked());
             editor.commit();
+            if (preferences.getBoolean("silentButton",false))
+            {
+                startService(new Intent(this,ScreenService.class));
+            }
+            else if (!preferences.getBoolean("silentButton", false))
+            {
+                stopService(new Intent(this,ScreenService.class));
+            }
 
         }
         if (v.getId() == s2.getId()) {
@@ -176,18 +127,18 @@ public class MyActivity extends AppCompatActivity implements View.OnClickListene
             editor.putBoolean("repeatButton", s2.isChecked());
             editor.commit();
             if (s2.isChecked()) {
-                timerow.setVisibility(timerow.VISIBLE);
+                timeRow.setVisibility(timeRow.VISIBLE);
             } else {
-                timerow.setVisibility(timerow.GONE);
+                timeRow.setVisibility(timeRow.GONE);
             }
         }
 
-        if (v.getId() == t1.getId()) {
+        if (v.getId() == timeRow.getId()) {
             intent = new Intent(this, SetTimeActivity.class);
             startActivity(intent);
         }
 
-        if(v.getId()==t2.getId())
+        if(v.getId()== exceptionRow.getId())
         {
             intent=new Intent(this,ExceptionActivity.class);
             startActivity(intent);

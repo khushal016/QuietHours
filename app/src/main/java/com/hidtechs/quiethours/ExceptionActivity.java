@@ -1,9 +1,13 @@
 package com.hidtechs.quiethours;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -19,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ExceptionActivity extends AppCompatActivity implements View.OnClickListener {
+public class ExceptionActivity extends AppCompatActivity implements View.OnClickListener,MyAdapter.DeleteButtonListner {
 
     private  String name;
     private String number;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private MyAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     TextView addcontacts,exceptions,arrow1,arrow2;
     TextView allcontacts;
@@ -37,14 +41,13 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
     int icon;
     boolean allContactsClicked,exceptionsClicked=false;
     SharedPreferences preferences;
-
+    DBHelper dbHelper = new DBHelper(this);
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exception);
-        data=new ArrayList<>();
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         allcontacts= (TextView) findViewById(R.id.allContacts);
         exceptions= (TextView) findViewById(R.id.exceptions);
@@ -60,10 +63,7 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
         allowLayout.setOnClickListener(this);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setVisibility(mRecyclerView.GONE);
-        l4.setVisibility(l4.GONE);
-        l5.setVisibility(l5.GONE);
-        preferences = getSharedPreferences("MyFiles",MODE_PRIVATE);
+        preferences = getSharedPreferences("MyFiles", MODE_PRIVATE);
         boolean cbpref = preferences.getBoolean("callsButton", false);
         allContactsClicked =preferences.getBoolean("allcontacts",false);
         exceptionsClicked =preferences.getBoolean("exceptions",false);
@@ -102,11 +102,11 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
         exceptionsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                allContactsClicked=false;
-                exceptionsClicked=true;
+                allContactsClicked = false;
+                exceptionsClicked = true;
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putBoolean("exceptions", exceptionsClicked);
-                editor.putBoolean("allcontacts",allContactsClicked);
+                editor.putBoolean("allcontacts", allContactsClicked);
                 editor.commit();
                 arrow1.setVisibility(arrow1.GONE);
                 arrow2.setVisibility(arrow2.VISIBLE);
@@ -130,6 +130,14 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
         {
             exceptionsLayout.performClick();
         }
+
+        data = dbHelper.getAllContacts();
+
+        mAdapter = new MyAdapter(this, data);
+        mAdapter.setDeleteButtonListner(this);
+        mRecyclerView.setAdapter(mAdapter);
+
+
     }
 
 
@@ -151,6 +159,9 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("callsButton", s1.isChecked());
             editor.commit();
+
+
+
         }
         if(v.getId()==addButton.getId())
         {
@@ -181,15 +192,30 @@ public class ExceptionActivity extends AppCompatActivity implements View.OnClick
                             null, null);
                     while (phones.moveToNext()) {
                         number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        number=number.replaceAll("\\s+", "");
                     }
                     phones.close();
                 }
                 Log.d("HELLO : ", " "+name);
                 Log.d("HELLO : ", " "+number);
-                icon=R.drawable.remove;
-                mAdapter= new MyAdapter(this,getData());
-                mRecyclerView.setAdapter(mAdapter);
+                    mAdapter.setData(getData());
+                    mAdapter.notifyDataSetChanged();
+
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put(DBHelper.CONTACTS_COLUMN_NAME, name);
+                values.put(DBHelper.CONTACTS_COLUMN_PHONE, number);
+                db.insert(DBHelper.CONTACTS_TABLE_NAME,null,values);
+
+
             }
         }
 
-    }}
+    }
+
+    @Override
+    public void deleteClicked(String name) {
+        dbHelper.deleteContact(name);
+
+    }
+}
